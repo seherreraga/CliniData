@@ -26,6 +26,7 @@ Gestión de Citas Médicas
 
 
 Validaciones Implementadas
+
 -Nombres: Solo caracteres alfabéticos y espacios
 
 -Edad: Rango válido (0-120 años)
@@ -40,10 +41,16 @@ Validaciones Implementadas
 
 
 #Guía de Uso#
+
+
 Menú Principal
+
 -Al iniciar la aplicación, se presenta un menú con tres opciones:
+
 -Registrar Paciente
+
 -Registrar Cita
+
 -Salir
 
 

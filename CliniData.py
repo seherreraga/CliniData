@@ -179,11 +179,11 @@ def registrar_cita(cedula, fecha, hora, motivo, medico):
 # ==========================
 def ventana_menu():
     ventana = tk.Tk()
-    ventana.title("MediTrack - Menú Principal")
+    ventana.title("CliniData - Menú Principal")
     ventana.geometry("300x200")
     ventana.resizable(False, False)
 
-    tk.Label(ventana, text="Bienvenido a MediTrack", font=("Arial", 14)).pack(pady=10)
+    tk.Label(ventana, text="Bienvenido a CliniData", font=("Arial", 14)).pack(pady=10)
     tk.Button(ventana, text="Registrar Paciente", command=ventana_pacientes, width=20).pack(pady=5)
     tk.Button(ventana, text="Registrar Cita", command=ventana_citas, width=20).pack(pady=5)
     tk.Button(ventana, text="Salir", command=ventana.destroy, width=20).pack(pady=10)
@@ -398,4 +398,5 @@ def ventana_citas():
 # Sección 5: Ejecución principal
 # ==========================
 if __name__ == "__main__":
+
     ventana_menu()

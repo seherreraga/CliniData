@@ -1,5 +1,5 @@
 Descripción del Proyecto
-MediTrack es un sistema de gestión médica desarrollado en Python con interfaz gráfica Tkinter, diseñado para facilitar el registro y administración de pacientes y citas médicas en consultorios y clínicas pequeñas.
+CliniData es un sistema de gestión médica desarrollado en Python con interfaz gráfica Tkinter, diseñado para facilitar el registro y administración de pacientes y citas médicas en consultorios y clínicas pequeñas.
 
 Características Principales:
 
@@ -14,7 +14,9 @@ Gestión de Pacientes
 
 -Almacenamiento en memoria durante la sesión
 
+
 Gestión de Citas Médicas
+
 -Programación de citas con médicos
 
 -Validación de horarios y fechas

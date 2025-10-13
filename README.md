@@ -1,4 +1,5 @@
 Descripción del Proyecto
+
 CliniData es un sistema de gestión médica desarrollado en Python con interfaz gráfica Tkinter, diseñado para facilitar el registro y administración de pacientes y citas médicas en consultorios y clínicas pequeñas.
 
 Características Principales:

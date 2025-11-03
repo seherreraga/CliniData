@@ -57,6 +57,12 @@ def registrar_cambio(usuario, accion, detalle):
     with open("historial.json", "w") as f:
         json.dump(historial, f, indent=4)
 
+def cargar_historial():
+    try:
+        with open("historial.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
 # ==========================
 # Sección 4: Funciones de validación
 # ==========================
@@ -76,7 +82,7 @@ def validar_nombre(nombre):
     return True, nombre.title()
 
 def validar_edad(edad_str):
-    """Valida que la edad sea un número entre 0 y 150"""
+    """Valida que la edad sea un número entre 0 y 120"""
     try:
         edad = int(edad_str)
         if edad < 0 or edad > 120:
@@ -561,3 +567,4 @@ def ventana_historial():
 if __name__ == "__main__":
     cargar_datos()
     ventana_menu()
+

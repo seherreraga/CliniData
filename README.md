@@ -119,6 +119,6 @@ El sistema almacena los datos en archivos JSON (pacientes.json, citas.json, hist
 
 **Versión:** 1.1 
 
-**Repositorio:** https://github.com/seherreraga/MediTrack
+**Repositorio:** https://github.com/seherreraga/CliniData
 
 **Autores:** Susan Galindo, Andres Morales, Juan Juagibioy, Sergio Herrera

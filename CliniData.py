@@ -142,18 +142,20 @@ def validar_fecha(fecha_str):
     except ValueError:
         return False, "Fecha inválida. Verifique día, mes y año"
 
-def validar_hora(hora_str):
-    """Valida formato de hora (HH:MM)"""
+def validar_hora(hora_str, fecha_str=None):
     hora = hora_str.strip()
-    
     if not hora:
         return False, "La hora no puede estar vacía"
-    
     if not re.match(r'^\d{1,2}:\d{2}$', hora):
         return False, "Formato de hora inválido. Use HH:MM"
-    
     try:
         hora_obj = datetime.strptime(hora, '%H:%M')
+        # Si me mandan la fecha comparar contra ahora
+        if fecha_str:
+            fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y')
+            ahora = datetime.now()
+            if fecha_obj.date() == ahora.date() and hora_obj.time() <= ahora.time():
+                return False, "No se puede agendar una cita en una hora pasada para hoy"
         return True, hora_obj.strftime('%H:%M') 
     except ValueError:
         return False, "Hora inválida. Use formato 24 horas (00:00 - 23:59)"
@@ -241,7 +243,9 @@ def ventana_menu():
     tk.Label(ventana, text="Bienvenido a CliniData", font=("Arial", 14)).pack(pady=10)
     tk.Button(ventana, text="Registrar Paciente", command=ventana_pacientes, width=20).pack(pady=5)
     tk.Button(ventana, text="Registrar Cita", command=ventana_citas, width=20).pack(pady=5)
-    tk.Button(ventana, text="Búsqueda Avanzada", command=ventana_busqueda, width=20).pack(pady=5)
+    tk.Button(ventana, text="Historial de Cambios", command=ventana_historial, width=20).pack(pady=5)
+    tk.Button(ventana, text="Búsqueda Avanzada", command=ventana_busqueda_filtros, width=20).pack(pady=5)
+    
     tk.Button(ventana, text="Salir", command=ventana.destroy, width=20).pack(pady=10)
 
     ventana.mainloop()
@@ -401,7 +405,7 @@ def ventana_citas():
             fecha_valida = resultado
 
             # Validar hora
-            es_valido, resultado = validar_hora(hora)
+            es_valido, resultado = validar_hora(hora, fecha)
             if not es_valido:
                 messagebox.showerror("Error", resultado)
                 entry_hora.focus()
@@ -451,53 +455,109 @@ def ventana_citas():
     tk.Button(frame_botones, text="Cancelar", command=vc.destroy, width=10).pack(side=tk.LEFT, padx=5)
 
 # ============================
-# Sección 7: Búsqueda avanzada
+# Sección 7: Búsqueda avanzada con filtros
 # ============================
 #Nuevo
-def ventana_busqueda():
+def ventana_busqueda_filtros():
     vb = tk.Toplevel()
-    vb.title("Búsqueda Avanzada")
-    vb.geometry("400x400")
+    vb.title("Búsqueda Avanzada por Filtros")
+    vb.geometry("500x470")
     vb.resizable(False, False)
 
-    tk.Label(vb, text="Buscar por nombre, cédula, médico o fecha").pack(pady=10)
-    entry_busqueda = tk.Entry(vb, width=40)
-    entry_busqueda.pack(pady=10)
-    text_resultado = tk.Text(vb, width=45, height=15)
+    tk.Label(vb, text="Búsqueda avanzada de citas", font=("Arial", 12, "bold")).pack(pady=10)
+    # Campos de filtro
+    frame_f = tk.Frame(vb)
+    frame_f.pack()
+
+    tk.Label(frame_f, text="Nombre de paciente:").grid(row=0, column=0, padx=5, pady=2, sticky="e")
+    entry_nombre = tk.Entry(frame_f, width=20)
+    entry_nombre.grid(row=0, column=1, padx=5, pady=2)
+
+    tk.Label(frame_f, text="Cédula:").grid(row=1, column=0, padx=5, pady=2, sticky="e")
+    entry_cedula = tk.Entry(frame_f, width=20)
+    entry_cedula.grid(row=1, column=1, padx=5, pady=2)
+
+    tk.Label(frame_f, text="Médico:").grid(row=2, column=0, padx=5, pady=2, sticky="e")
+    entry_medico = tk.Entry(frame_f, width=20)
+    entry_medico.grid(row=2, column=1, padx=5, pady=2)
+
+    tk.Label(frame_f, text="Motivo:").grid(row=3, column=0, padx=5, pady=2, sticky="e")
+    entry_motivo = tk.Entry(frame_f, width=20)
+    entry_motivo.grid(row=3, column=1, padx=5, pady=2)
+
+    tk.Label(frame_f, text="Fecha (DD/MM/AAAA):").grid(row=4, column=0, padx=5, pady=2, sticky="e")
+    entry_fecha = tk.Entry(frame_f, width=20)
+    entry_fecha.grid(row=4, column=1, padx=5, pady=2)
+
+    # Área de resultados
+    text_resultado = tk.Text(vb, width=58, height=15)
     text_resultado.pack(pady=10)
 
     def ejecutar_busqueda():
-    criterio = entry_busqueda.get().lower()
-    resultados = []
-    for c in citas:
-        if (criterio in c["cedula"].lower() or
-            criterio in c["fecha"].lower() or
-            criterio in c["medico"].lower() or
-            criterio in c["motivo"].lower()):
-            resultados.append(c)
-    text_resultado.delete("1.0", tk.END)
-    if resultados:
-        for r in resultados:
-            # Buscar el nombre usando cedula
-            nombre_paciente = next((p["nombre"] for p in pacientes if p["cedula"] == r["cedula"]), "NO ENCONTRADO")
-            text_resultado.insert(tk.END, 
-                f"Paciente: {nombre_paciente}\n"
-                f"Cédula: {r['cedula']}\n"
-                f"Fecha: {r['fecha']}\n"
-                f"Hora: {r['hora']}\n"
-                f"Médico: {r['medico']}\n"
-                f"Motivo: {r['motivo']}\n"
-                f"{'-'*40}\n"
-            )
-    else:
-        text_resultado.insert(tk.END, "No se encontraron resultados.")
+        nombre_filtro = entry_nombre.get().strip().lower()
+        cedula_filtro = entry_cedula.get().strip()
+        medico_filtro = entry_medico.get().strip().lower()
+        motivo_filtro = entry_motivo.get().strip().lower()
+        fecha_filtro = entry_fecha.get().strip()
+        resultados = []
 
-    tk.Button(vb, text="Buscar", command=ejecutar_busqueda).pack()
+        for c in citas:
+            paciente = next((p for p in pacientes if p["cedula"] == c["cedula"]), None)
+            nombre_p = paciente["nombre"].lower() if paciente else ""
+            if (
+                (not nombre_filtro or nombre_filtro in nombre_p)
+                and (not cedula_filtro or cedula_filtro in c["cedula"])
+                and (not medico_filtro or medico_filtro in c["medico"].lower())
+                and (not motivo_filtro or motivo_filtro in c["motivo"].lower())
+                and (not fecha_filtro or fecha_filtro == c["fecha"])
+            ):
+                resultados.append((c, paciente["nombre"] if paciente else "N/A"))
+
+        text_resultado.delete("1.0", tk.END)
+        if resultados:
+            for r, nombre_paciente in resultados:
+                text_resultado.insert(tk.END,
+                    f"Paciente: {nombre_paciente}\n"
+                    f"Cédula: {r['cedula']}\n"
+                    f"Fecha: {r['fecha']}\n"
+                    f"Hora: {r['hora']}\n"
+                    f"Médico: {r['medico']}\n"
+                    f"Motivo: {r['motivo']}\n"
+                    f"{'-'*45}\n"
+                )
+        else:
+            text_resultado.insert(tk.END, "No se encontraron resultados.")
+
+    tk.Button(vb, text="Buscar", command=ejecutar_busqueda, width=16).pack(pady=5)
 
 # ==========================
 # Sección 8: Ejecución principal
 # ==========================
+def ventana_historial():
+    vh = tk.Toplevel()
+    vh.title("Historial de Cambios")
+    vh.geometry("540x450")
+    vh.resizable(False, False)
+    tk.Label(vh, text="Historial de cambios del sistema", font=("Arial", 12, "bold")).pack(pady=10)
+    text_hist = tk.Text(vh, width=65, height=22)
+    text_hist.pack(padx=10, pady=5)
+    historial = cargar_historial()
+    if historial:
+        for e in historial:
+            text_hist.insert(tk.END,
+                f"Usuario: {e['usuario']}\n"
+                f"Acción: {e['accion']}\n"
+                f"Detalle: {e['detalle']}\n"
+                f"Fecha y hora: {e['fecha_hora']}\n"
+                f"{'-'*60}\n"
+            )
+    else:
+        text_hist.insert(tk.END, "No hay historial registrado.")
+        
+#==========================
+# Ejecución principal
+# =========================
+
 if __name__ == "__main__":
     cargar_datos()
     ventana_menu()
-

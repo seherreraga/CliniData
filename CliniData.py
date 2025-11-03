@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import re
 from datetime import datetime
+import json
 
 # ==========================
 # Sección 1: Variables globales
@@ -9,8 +10,55 @@ from datetime import datetime
 pacientes = []
 citas = []
 
+#==================================
+#Sección 2: Manejo de archivos JSON
+#==================================
+#Nuevo
+
+def guardar_datos():
+    """Guarda pacientes y citas en archivos JSON"""
+    with open("pacientes.json", "w") as f:
+        json.dump(pacientes, f, indent=4)
+    with open("citas.json", "w") as f:
+        json.dump(citas, f, indent=4)
+
+def cargar_datos():
+    global pacientes, citas
+    try:
+        with open("pacientes.json", "r") as f:
+            pacientes = json.load(f)
+    except FileNotFoundError:
+        pacientes = []
+    try:
+        with open("citas.json", "r") as f:
+            citas = json.load(f)
+    except FileNotFoundError:
+        citas = []
+
+#==========================================
+#Sección 3: Registro de cambios (Historial)
+#==========================================
+#Nuevo
+
+def registrar_cambio(usuario, accion, detalle):
+    """Guarda en historial quién hizo qué cambio y cuándo"""
+    log = {
+        "usuario": usuario,
+        "accion": accion,
+        "detalle": detalle,
+        "fecha_hora": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    }
+    try:
+        with open("historial.json", "r") as f:
+            historial = json.load(f)
+    except FileNotFoundError:
+        historial = []
+    historial.append(log)
+    with open("historial.json", "w") as f:
+        json.dump(historial, f, indent=4)
+
 # ==========================
-# Sección 2: Funciones de validación
+# Sección 4: Funciones de validación
 # ==========================
 def validar_nombre(nombre):
     """Valida que el nombre contenga solo letras y espacios"""
@@ -130,7 +178,7 @@ def paciente_existe(cedula):
     return False
 
 # ==========================
-# Sección 3: Funciones de lógica mejoradas
+# Sección 5: Funciones de lógicas
 # ==========================
 def registrar_paciente(nombre, edad, cedula, telefono):
     """Registra paciente con validaciones"""
@@ -147,6 +195,10 @@ def registrar_paciente(nombre, edad, cedula, telefono):
     }
     pacientes.append(paciente)
     print(f"Paciente registrado: {paciente}")
+
+    guardar_datos()
+    registrar_cambio("admin", "Registro de paciente", f"{nombre} ({cedula})")
+    
     return True
 
 def registrar_cita(cedula, fecha, hora, motivo, medico):
@@ -172,10 +224,13 @@ def registrar_cita(cedula, fecha, hora, motivo, medico):
     }
     citas.append(cita)
     print(f"Cita registrada: {cita}") 
+
+    guardar_datos()
+    registrar_cambio("admin", "Registro de cita", f"{cedula} - {fecha} {hora}")
     return True
 
 # ==========================
-# Sección 4: Interfaz gráfica mejorada
+# Sección 6: Interfaz gráfica 
 # ==========================
 def ventana_menu():
     ventana = tk.Tk()
@@ -186,6 +241,7 @@ def ventana_menu():
     tk.Label(ventana, text="Bienvenido a CliniData", font=("Arial", 14)).pack(pady=10)
     tk.Button(ventana, text="Registrar Paciente", command=ventana_pacientes, width=20).pack(pady=5)
     tk.Button(ventana, text="Registrar Cita", command=ventana_citas, width=20).pack(pady=5)
+    tk.Button(ventana, text="Búsqueda Avanzada", command=ventana_busqueda, width=20).pack(pady=5)
     tk.Button(ventana, text="Salir", command=ventana.destroy, width=20).pack(pady=10)
 
     ventana.mainloop()
@@ -394,9 +450,54 @@ def ventana_citas():
     tk.Button(frame_botones, text="Limpiar", command=limpiar_campos, width=10).pack(side=tk.LEFT, padx=5)
     tk.Button(frame_botones, text="Cancelar", command=vc.destroy, width=10).pack(side=tk.LEFT, padx=5)
 
+# ============================
+# Sección 7: Búsqueda avanzada
+# ============================
+#Nuevo
+def ventana_busqueda():
+    vb = tk.Toplevel()
+    vb.title("Búsqueda Avanzada")
+    vb.geometry("400x400")
+    vb.resizable(False, False)
+
+    tk.Label(vb, text="Buscar por nombre, cédula, médico o fecha").pack(pady=10)
+    entry_busqueda = tk.Entry(vb, width=40)
+    entry_busqueda.pack(pady=10)
+    text_resultado = tk.Text(vb, width=45, height=15)
+    text_resultado.pack(pady=10)
+
+    def ejecutar_busqueda():
+    criterio = entry_busqueda.get().lower()
+    resultados = []
+    for c in citas:
+        if (criterio in c["cedula"].lower() or
+            criterio in c["fecha"].lower() or
+            criterio in c["medico"].lower() or
+            criterio in c["motivo"].lower()):
+            resultados.append(c)
+    text_resultado.delete("1.0", tk.END)
+    if resultados:
+        for r in resultados:
+            # Buscar el nombre usando cedula
+            nombre_paciente = next((p["nombre"] for p in pacientes if p["cedula"] == r["cedula"]), "NO ENCONTRADO")
+            text_resultado.insert(tk.END, 
+                f"Paciente: {nombre_paciente}\n"
+                f"Cédula: {r['cedula']}\n"
+                f"Fecha: {r['fecha']}\n"
+                f"Hora: {r['hora']}\n"
+                f"Médico: {r['medico']}\n"
+                f"Motivo: {r['motivo']}\n"
+                f"{'-'*40}\n"
+            )
+    else:
+        text_resultado.insert(tk.END, "No se encontraron resultados.")
+
+    tk.Button(vb, text="Buscar", command=ejecutar_busqueda).pack()
+
 # ==========================
-# Sección 5: Ejecución principal
+# Sección 8: Ejecución principal
 # ==========================
 if __name__ == "__main__":
-
+    cargar_datos()
     ventana_menu()
+

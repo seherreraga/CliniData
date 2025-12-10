@@ -1,0 +1,64 @@
+/* Fondo principal con gradiente */
+QWidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #17325A, stop:1 #375FA9);
+    color: #FFFFFF;
+    font-family: "Segoe UI", "Helvetica Neue", Arial;
+    font-size: 12px;
+}
+
+/* Ventanas/dialogs con panel interior claro */
+QDialog, QMainWindow {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #1F3C88, stop:1 #375FA9);
+}
+
+/* Card blanco para formularios (encuentra contraste) */
+QWidget[role="card"] {
+    background: #EAF0FA;
+    color: #222831;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Títulos */
+QLabel.title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #FFFFFF;
+}
+
+/* Botones principales */
+QPushButton {
+    background-color: #375FA9;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+QPushButton:hover {
+    background-color: #4A72C1;
+}
+QPushButton:pressed {
+    background-color: #2B4F8A;
+}
+
+/* Inputs */
+QLineEdit, QDateEdit {
+    background: #FFFFFF;
+    color: #222831;
+    border: 1px solid #C7D3EE;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+/* Mensajes y cuadros */
+QMessageBox {
+    background: #FFFFFF;
+    color: #222831;
+}
+
+/* Logo header (si usas QLabel con objectName 'logoLabel') */
+QLabel#logoLabel {
+    margin: 8px;
+}

@@ -1,10 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
-
-try:
-    from .. import services, validators
-except Exception:
-    services = None
-    validators = None
+from .. import services, validators
 
 class MedicosDialog(QDialog):
     def __init__(self, parent=None):
@@ -43,23 +38,35 @@ class MedicosDialog(QDialog):
         especialidad = self.entry_especialidad.text().strip()
         telefono = self.entry_telefono.text().strip()
 
+        # Validar nombre si validators está disponible
         if validators and hasattr(validators, "validar_nombre"):
             ok, res = validators.validar_nombre(nombre)
             if not ok:
-                QMessageBox.critical(self, "Error", res); return
+                QMessageBox.critical(self, "Error", res)
+                self.entry_nombre.setFocus()
+                return
             nombre = res
 
-        medico = {"nombre": nombre, "especialidad": especialidad, "telefono": telefono}
+        # Validar teléfono opcionalmente
+        if telefono and validators and hasattr(validators, "validar_telefono"):
+            ok, res = validators.validar_telefono(telefono)
+            if not ok:
+                QMessageBox.warning(self, "Aviso", f"Teléfono: {res}\nSe intentará guardar de todas formas.")
+            else:
+                telefono = res
 
+        # Llamada correcta a services.registrar_medico(nombre, especialidad)
         if services and hasattr(services, "registrar_medico"):
-            try:
-                services.registrar_medico(medico)
-                QMessageBox.information(self, "OK", "Médico agregado correctamente.")
+            ok, msg = services.registrar_medico(nombre, especialidad)
+            if ok:
+                QMessageBox.information(self, "Éxito", msg)
                 self.accept()
                 return
-            except Exception as e:
-                QMessageBox.warning(self, "Aviso", f"Error al guardar via services: {e}\nSe mostrará en consola.")
+            else:
+                QMessageBox.critical(self, "Error", msg)
+                return
 
-        print("Médico (pendiente guardar):", medico)
+        # Fallback si services no está disponible
+        print("Médico (pendiente guardar):", {"nombre": nombre, "especialidad": especialidad, "telefono": telefono})
         QMessageBox.information(self, "Guardado (simulado)", "Médico mostrado en consola (integración pendiente).")
         self.accept()

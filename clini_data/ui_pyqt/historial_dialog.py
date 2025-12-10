@@ -1,8 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton, QMessageBox
-try:
-    from .. import services
-except Exception:
-    services = None
+from .. import services
 
 class HistorialDialog(QDialog):
     def __init__(self, parent=None):
@@ -31,8 +28,8 @@ class HistorialDialog(QDialog):
                 historial = services.obtener_historial()
             except Exception as e:
                 QMessageBox.warning(self, "Aviso", f"Error al obtener historial via services: {e}")
-        if historial is None:
-            self.text.setPlainText("No hay historial disponible o services.obtener_historial no implementado.")
+        if not historial:
+            self.text.setPlainText("No hay historial disponible.")
             return
         lines = []
         for e in historial:

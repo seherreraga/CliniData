@@ -4,9 +4,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 if __name__ == "__main__":
-    # Carga datos (usa las funciones del módulo storage existente)
     cargar_datos()
-
     app = QApplication(sys.argv)
     ventana = MainWindow()
     ventana.show()

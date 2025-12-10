@@ -1,2 +1,10 @@
-# Paquete clini_data
-__all__ = ["storage", "validators", "services", "analytics", "ui"]
+__all__ = [
+    "storage",
+    "validators",
+    "services",
+    "analytics",
+    "ui_pyqt",
+    "medicos",
+    "pacientes",
+    "citas",
+]

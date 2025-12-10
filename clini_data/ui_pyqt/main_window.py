@@ -1,5 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton
 from .pacientes_dialog import PacientesDialog
+from .citas_dialog import CitasDialog
+from .medicos_dialog import MedicosDialog
+from .historial_dialog import HistorialDialog
+from .analisis_window import AnalisisWindow
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -27,12 +31,28 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_salir)
 
         btn_pacientes.clicked.connect(self.abrir_pacientes)
-        btn_citas.clicked.connect(lambda: QMessageBox.information(self, "Info", "Módulo de citas no implementado aún"))
-        btn_medicos.clicked.connect(lambda: QMessageBox.information(self, "Info", "Módulo de médicos no implementado aún"))
-        btn_historial.clicked.connect(lambda: QMessageBox.information(self, "Info", "Historial no implementado aún"))
-        btn_analisis.clicked.connect(lambda: QMessageBox.information(self, "Info", "Análisis no implementado aún"))
+        btn_citas.clicked.connect(self.abrir_citas)
+        btn_medicos.clicked.connect(self.abrir_medicos)
+        btn_historial.clicked.connect(self.abrir_historial)
+        btn_analisis.clicked.connect(self.abrir_analisis)
         btn_salir.clicked.connect(self.close)
 
     def abrir_pacientes(self):
         dlg = PacientesDialog(self)
+        dlg.exec_()
+
+    def abrir_citas(self):
+        dlg = CitasDialog(self)
+        dlg.exec_()
+
+    def abrir_medicos(self):
+        dlg = MedicosDialog(self)
+        dlg.exec_()
+
+    def abrir_historial(self):
+        dlg = HistorialDialog(self)
+        dlg.exec_()
+
+    def abrir_analisis(self):
+        dlg = AnalisisWindow(self)
         dlg.exec_()

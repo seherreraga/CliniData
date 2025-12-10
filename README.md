@@ -141,14 +141,6 @@ pip install numpy pandas matplotlib requests
 
 ---
 
-## Desarrollo futuro (sugerencias)
-- Multiusuario y control de permisos (roles).
-- Horarios por médico, ausencias y turnos.
-- Endpoint/servicio backend y control de concurrencia (reservas atómicas).
-- Mejoras en la IA: entrenar modelos más robustos con scikit-learn o frameworks ML.
-- Internacionalización (i18n) y configuración de temas (claro/oscuro).
-
----
 
 ## Ejecución de pruebas y depuración
 - Hay validaciones en `validators.py` y cobertura manual a través de la UI.

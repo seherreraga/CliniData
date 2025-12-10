@@ -1,2 +1,8 @@
-# Paquete de UI con PyQt5
-__all__ = ["main_window", "pacientes_dialog"]
+__all__ = [
+    "main_window",
+    "pacientes_dialog",
+    "medicos_dialog",
+    "citas_dialog",
+    "historial_dialog",
+    "analisis_window",
+]
